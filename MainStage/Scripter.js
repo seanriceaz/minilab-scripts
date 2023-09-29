@@ -94,7 +94,7 @@ function ParameterChanged(param, value) {
 			if (PluginParameters[param].name.indexOf("Metronome") > 0) {
 				var info = GetTimingInfo(); /* get the timing info from the host */
 				var thisBeat = Math.floor(info.blockStartBeat)
-				message.sendAtBeat(thisBeat + 1.125);
+				message.sendAtBeat(thisBeat);
 			} else {
 				message.send();
 			}
@@ -125,10 +125,22 @@ function ProcessMIDI() {
 				// build our message
 				message.value = getColorNumber(GetParameter("Pad " + (i + 1) + " Color"));
 				// Send our color
-				message.sendAtBeat(currentBeat + 1);
-				// Send black a little later
-				message.value = 0;
-				message.sendAtBeat(currentBeat + 1.125);
+				if (info.tempo < 240){
+				  message.sendAtBeat(currentBeat + 1);
+				  // Send black a little later
+				  message.value = 0;
+				  if (info.tempo < 120)
+				  	message.sendAtBeat(currentBeat + 1.125); 
+				  else if (info.tempo < 200)
+				  	message.sendAtBeat(currentBeat + 1.25);
+				  else 
+				  	message.sendAtBeat(currentBeat + 1.5);
+				} else if (currentBeat % 2 == 0) {
+				  message.sendAtBeat(currentBeat + 1);
+				  // Send black a little later
+				  message.value = 0;
+				  message.sendAtBeat(currentBeat + 2);
+				}
 				currentPadColors[i] = 0;
 			} else {
 				// build our message
